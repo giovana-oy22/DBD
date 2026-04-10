@@ -1,29 +1,147 @@
 # DBD
-Repositório para implementação do Banco de Dados Relacional PostgreSQL para a disciplina de PCS3623
+Repositório para implementação de um banco de dados para a disciplina de PCS3623
 
-### Baixando o PostgreSQL
-Acesse [PostgreSQL Download](https://www.postgresql.org/download/) e baixe a versão adequada ao seu computador.
-Após execução do arquivo .exe, prossiga com as instruções e defina sua **senha** - guarde bem que ela será pedida depois!
-Instale tudo que ele pedir e, ao final, ele provavelmente pedirá para você instalar o *Stack Builder*, mas ele lida com coisas mais avançadas que não precisaremos para esse trabalho, então pode cancelar o que ele pede para selecionar de instalação nesse passo.
-Depois disso, tá tudo certo, só procurar por *pgAdmin 4* e voilá.
+# 🚀 Projeto Django
 
+Este é um projeto web desenvolvido com Django, utilizando banco de dados integrado e estrutura pronta para desenvolvimento em equipe.
 
-### pgAdmin 4
-Abrindo ele, você vai se deparar com o menu da esquerda (Object Explorer) e nele temos o Servers. Clique no Servers e conecte-se, ele vai pedir a senha criada por você lá no início.
-Agora é só aprender a como criar tabelas, inserir dados nelas e fazer consultas. Lembrem das aulas de BD ou consultem os universItArios
+---
 
+## 📌 Tecnologias utilizadas
 
-## Como você fará as coisas no seu computador
-Passo a passo no seu computador:
-- Abrir pgAdmin;
-- Criar um banco novo: Create --> Database (Object Explorer);
-- Abre QueryTool (Clicar com botão direito no Database criado);
-- Clicar em Open File ou Ctrl+O ou icone de pastinha;
-- Seleciona o arquivo .sql que está na branch;
-- Clica na setinha pra dar o run (Execute Script).
+* Python 3
+* Django
+* SQLite (banco de dados padrão)
+* Git e GitHub
 
-A partir daqui, você vai fazer tudo dentro dessa aba do Query Tool. Depois que você escrever algo e der run, ele automaticamente já roda seus comandos, então já pode apagar o que você tinha escrito e escrever as coisas novas (se você não apagar, ele dá erro pq as coisas já foram criadas e executadas, a menos que seja um comando de consulta).
+---
 
-Então galera, eu gosto de fazer o desenvolvimento dos trabalhos por aqui em branches e ai quando tiver td certo, mergear na main.
-Não esquecer de dar git pull sempre e de fazer os commits para o coleguinha ter o trabalho att.
-É isso, bjs
+## ⚙️ Como rodar o projeto
+
+Siga os passos abaixo para rodar o projeto na sua máquina:
+
+### 1. Clonar o repositório
+
+```bash
+git clone <link-do-repositorio>
+cd <nome-do-repositorio>
+```
+
+---
+
+### 2. Criar ambiente virtual
+
+```bash
+python3 -m venv venv
+```
+
+---
+
+### 3. Ativar o ambiente virtual
+
+* Linux / Mac:
+
+```bash
+source venv/bin/activate
+```
+
+* Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+---
+
+### 4. Instalar dependências
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 5. Aplicar migrations (criar banco de dados)
+
+```bash
+python manage.py migrate
+```
+
+---
+
+### 6. Criar usuário administrador (opcional)
+
+```bash
+python manage.py createsuperuser
+```
+
+---
+
+### 7. Rodar o servidor
+
+```bash
+python manage.py runserver
+```
+
+Acesse no navegador:
+
+```
+http://127.0.0.1:8000/
+```
+
+Painel admin:
+
+```
+http://127.0.0.1:8000/admin/
+```
+
+---
+
+## 📂 Estrutura do projeto
+
+```
+├── config/        # Configurações do projeto
+├── core/          # App principal
+├── manage.py      # Gerenciador do Django
+├── requirements.txt
+```
+
+---
+
+## 🤝 Como contribuir
+
+1. Crie uma branch:
+
+```bash
+git checkout -b minha-feature
+```
+
+2. Faça suas alterações e commit:
+
+```bash
+git commit -m "minha feature"
+```
+
+3. Envie para o GitHub:
+
+```bash
+git push origin minha-feature
+```
+
+4. Abra um Pull Request 🚀
+
+---
+
+## ⚠️ Observações
+
+* O ambiente virtual (`venv/`) não está incluído no repositório
+* O banco de dados é gerado automaticamente com `migrate`
+* Não é necessário configurar banco manualmente
+
+---
+
+## 💡 Objetivo
+
+Este projeto foi desenvolvido para aprendizado de backend com Django, integração com banco de dados e trabalho colaborativo com Git.
+
+---
