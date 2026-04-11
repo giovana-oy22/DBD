@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Produtos</title>
+</head>
+<body>
+
+    <h1>Produtos cadastrados</h1>
+
+    <!-- 🔍 BUSCA -->
+    <form method="get">
+        <input type="text" name="q" placeholder="Buscar produto..." value="{{ query }}">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <hr>
+
+    <!-- 📋 LISTA -->
+    {% if produtos %}
+        <ul>
+            {% for p in produtos %}
+                <li>{{ p.nome }} - R$ {{ p.preco }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhum produto encontrado.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- 🔗 LINK PARA ADICIONAR -->
+    <a href="/adicionar/">Adicionar novo produto</a>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Produtos</title>
+</head>
+<body>
+
+    <h1>Cadastro de Produtos</h1>
+
+    <!-- ➕ FORMULÁRIO -->
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <hr>
+
+    <!-- 🔍 BUSCA -->
+    <form method="get">
+        <input type="text" name="q" placeholder="Buscar produto..." value="{{ query }}">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <hr>
+
+    <!-- 📋 LISTA -->
+    <h2>Lista de Produtos</h2>
+
+    {% if produtos %}
+        <ul>
+            {% for p in produtos %}
+                <li>{{ p.nome }} - R$ {{ p.preco }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhum produto encontrado.</p>
+    {% endif %}
+
+</body>
+</html>
