@@ -93,3 +93,26 @@ def restaurantes_proximos(request):
     data.sort(key=lambda x: x["distancia"])
 
     return Response(data)
+
+import requests
+from django.shortcuts import render
+
+def pagina_produtos(request):
+    produtos_url = 'http://localhost:8001/api/produtos/'
+    restaurantes_url = 'http://localhost:8001/api/restaurantes/'
+
+    try:
+        produtos_resp = requests.get(produtos_url, timeout=3)
+        restaurantes_resp = requests.get(restaurantes_url, timeout=3)
+
+        produtos = produtos_resp.json() if produtos_resp.status_code == 200 else []
+        restaurantes = restaurantes_resp.json() if restaurantes_resp.status_code == 200 else []
+
+    except:
+        produtos = []
+        restaurantes = []
+
+    return render(request, 'core/produtos.html', {
+        'produtos': produtos,
+        'restaurantes': restaurantes
+    })

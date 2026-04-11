@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Produtos</title>
+</head>
+<body>
+
+    <h1>Produtos disponíveis</h1>
+
+    <ul>
+        {% for p in produtos %}
+            <li>
+                <strong>{{ p.nome }}</strong>  
+                - R$ {{ p.preco }}  
+                ({{ p.restaurante }})
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h1>Restaurantes disponíveis</h1>
+
+<ul>
+    {% for r in restaurantes %}
+        <li>
+            <strong>{{ r.nome }}</strong> <br>
+            {{ r.endereco }}
+        </li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+</body>
+</html>

@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from core.views import lista_produtos, lista_restaurantes, lista_pedidos, restaurantes_proximos
 from django.http import HttpResponse
 
@@ -25,9 +25,13 @@ def home(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home),  # 👈 homepage
+
+    #API
     path('api/produtos/', lista_produtos),
     path('api/restaurantes/', lista_restaurantes),
     path('api/pedidos/', lista_pedidos),
     path('api/restaurantes-proximos/', restaurantes_proximos),
+
+    #interface
+    path('', include('core.urls')),
 ]
