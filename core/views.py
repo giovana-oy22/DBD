@@ -101,6 +101,9 @@ def pagina_produtos(request):
     produtos_url = 'http://localhost:8001/api/produtos/'
     restaurantes_url = 'http://localhost:8001/api/restaurantes/'
 
+    query_produto = request.GET.get('produto')
+    query_restaurante = request.GET.get('restaurante')
+
     try:
         produtos_resp = requests.get(produtos_url, timeout=3)
         restaurantes_resp = requests.get(restaurantes_url, timeout=3)
@@ -112,7 +115,23 @@ def pagina_produtos(request):
         produtos = []
         restaurantes = []
 
+    # 🔍 FILTRO POR PRODUTO
+    if query_produto:
+        produtos = [
+            p for p in produtos
+            if query_produto.lower() in p['nome'].lower()
+        ]
+
+    # 🔍 FILTRO POR RESTAURANTE
+    if query_restaurante:
+        produtos = [
+            p for p in produtos
+            if query_restaurante.lower() in p['restaurante'].lower()
+        ]
+
     return render(request, 'core/produtos.html', {
         'produtos': produtos,
-        'restaurantes': restaurantes
+        'restaurantes': restaurantes,
+        'query_produto': query_produto,
+        'query_restaurante': query_restaurante
     })

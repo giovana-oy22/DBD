@@ -5,6 +5,18 @@
 </head>
 <body>
 
+    <h1>Buscar</h1>
+
+<form method="get">
+    <input type="text" name="produto" placeholder="Buscar produto..." value="{{ query_produto }}">
+    
+    <input type="text" name="restaurante" placeholder="Buscar restaurante..." value="{{ query_restaurante }}">
+    
+    <button type="submit">Pesquisar</button>
+</form>
+
+<hr>
+
     <h1>Produtos disponíveis</h1>
 
     <ul>
