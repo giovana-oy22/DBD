@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import redirect, render
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -6,8 +8,56 @@ from rest_framework.response import Response
 from .models import Produto
 from .models import Restaurante
 from .models import Pedido
+from .models import Cliente
+from .models import ItemPedido
 
 from math import sqrt
+
+
+def home_web(request):
+    contexto = {
+        "clientes": Cliente.objects.order_by("nome"),
+        "produtos": Produto.objects.select_related("restaurante").order_by("nome"),
+    }
+    return render(request, "painel.html", contexto)
+
+
+def criar_pedido(request):
+    if request.method != "POST":
+        return redirect("painel")
+
+    cliente_id = request.POST.get("cliente_id")
+    produto_id = request.POST.get("produto_id")
+    quantidade_raw = request.POST.get("quantidade", "1")
+
+    try:
+        quantidade = int(quantidade_raw)
+        if quantidade <= 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        messages.error(request, "Quantidade invalida. Informe um inteiro maior que zero.")
+        return redirect("painel")
+
+    try:
+        cliente = Cliente.objects.get(pk=cliente_id)
+        produto = Produto.objects.select_related("restaurante").get(pk=produto_id)
+    except (Cliente.DoesNotExist, Produto.DoesNotExist, TypeError, ValueError):
+        messages.error(request, "Cliente ou produto nao encontrado.")
+        return redirect("painel")
+
+    with transaction.atomic():
+        pedido = Pedido.objects.create(
+            cliente=cliente,
+            restaurante=produto.restaurante,
+        )
+        ItemPedido.objects.create(
+            pedido=pedido,
+            produto=produto,
+            quantidade=quantidade,
+        )
+
+    messages.success(request, f"Pedido {pedido.id} criado com sucesso.")
+    return redirect("painel")
 
 @api_view(['GET'])
 def lista_produtos(request):
@@ -111,8 +161,8 @@ import requests
 from django.shortcuts import render
 
 def pagina_produtos(request):
-    produtos_url = 'http://localhost:8001/api/produtos/'
-    restaurantes_url = 'http://localhost:8001/api/restaurantes/'
+    produtos_url = request.build_absolute_uri('/api/produtos/')
+    restaurantes_url = request.build_absolute_uri('/api/restaurantes/')
 
     query_produto = request.GET.get('produto')
     query_restaurante = request.GET.get('restaurante')

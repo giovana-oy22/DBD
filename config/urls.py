@@ -16,22 +16,23 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
-from core.views import lista_produtos, lista_restaurantes, lista_pedidos, restaurantes_proximos
-from django.http import HttpResponse
-
-def home(request):
-    return HttpResponse("API funcionando 🚀")
+from django.urls import include, path
+from core.views import (
+    home_web,
+    criar_pedido,
+    lista_produtos,
+    lista_restaurantes,
+    lista_pedidos,
+    restaurantes_proximos,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    #API
+    path('', home_web, name='painel'),
+    path('pedidos/criar/', criar_pedido, name='criar_pedido'),
     path('api/produtos/', lista_produtos),
     path('api/restaurantes/', lista_restaurantes),
     path('api/pedidos/', lista_pedidos),
     path('api/restaurantes-proximos/', restaurantes_proximos),
-
-    #interface
-    path('', include('core.urls')),
+    path('produtos/', include('core.urls')),
 ]

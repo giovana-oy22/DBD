@@ -1,0 +1,92 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Restaurantes</title>
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Trabalho Banco de Dados</p>
+      <h1>Painel de Restaurantes</h1>
+    </div>
+  </header>
+
+  <main class="page">
+    {% if messages %}
+      <section class="messages" aria-live="polite">
+        {% for message in messages %}
+          <article class="message {{ message.tags }}">{{ message }}</article>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    <section class="panel form-panel">
+      <div class="panel-head">
+        <h2>Criar Pedido Rapido</h2>
+      </div>
+
+      <form method="post" action="{% url 'criar_pedido' %}" class="pedido-form">
+        {% csrf_token %}
+
+        <label for="cliente_id">Cliente</label>
+        <select id="cliente_id" name="cliente_id" required>
+          <option value="" selected disabled>Selecione um cliente</option>
+          {% for cliente in clientes %}
+            <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="produto_id">Produto</label>
+        <select id="produto_id" name="produto_id" required>
+          <option value="" selected disabled>Selecione um produto</option>
+          {% for produto in produtos %}
+            <option value="{{ produto.id }}">{{ produto.nome }} | {{ produto.restaurante.nome }} | R$ {{ produto.preco }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="quantidade">Quantidade</label>
+        <input id="quantidade" name="quantidade" type="number" min="1" step="1" value="1" required>
+
+        <button type="submit">Criar Pedido</button>
+      </form>
+    </section>
+
+    <section class="grid">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Restaurantes</h2>
+        </div>
+        <div id="restaurantes" class="cards"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Produtos</h2>
+        </div>
+        <div id="produtos" class="cards"></div>
+      </section>
+
+      <section class="panel wide">
+        <div class="panel-head">
+          <h2>Pedidos</h2>
+        </div>
+        <div id="pedidos" class="cards"></div>
+      </section>
+    </section>
+  </main>
+
+  <template id="card-template">
+    <article class="card">
+      <h3 class="card-title"></h3>
+      <p class="card-subtitle"></p>
+      <p class="card-meta"></p>
+    </article>
+  </template>
+
+  <script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>
