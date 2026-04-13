@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import redirect, render
+from math import radians, sin, cos, sqrt, atan2
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,8 +11,6 @@ from .models import Restaurante
 from .models import Pedido
 from .models import Cliente
 from .models import ItemPedido
-
-from math import sqrt
 
 
 def home_web(request):
@@ -120,9 +119,6 @@ def lista_pedidos(request):
 
     return Response(data)
 
-from math import radians, sin, cos, sqrt, atan2
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
 def calcular_distancia(lat1, lon1, lat2, lon2):
     R = 6371  # raio da Terra em km
@@ -136,26 +132,69 @@ def calcular_distancia(lat1, lon1, lat2, lon2):
     return R * c
 
 
-@api_view(['GET'])
-def restaurantes_proximos(request):
-    lat = float(request.GET.get('lat'))
-    lon = float(request.GET.get('lon'))
-
+def _listar_restaurantes_por_distancia(origem_latitude, origem_longitude):
     restaurantes = Restaurante.objects.all()
     data = []
 
-    for r in restaurantes:
-        distancia = calcular_distancia(lat, lon, r.latitude, r.longitude)
+    for restaurante in restaurantes:
+        distancia = calcular_distancia(
+            origem_latitude,
+            origem_longitude,
+            restaurante.latitude,
+            restaurante.longitude,
+        )
 
         data.append({
-            "id": r.id,
-            "nome": r.nome,
-            "distancia_km": distancia
+            "id": restaurante.id,
+            "nome": restaurante.nome,
+            "endereco": restaurante.endereco,
+            "latitude": restaurante.latitude,
+            "longitude": restaurante.longitude,
+            "distancia_km": round(distancia, 3),
         })
 
-    data.sort(key=lambda x: x["distancia_km"])
+    data.sort(key=lambda item: item["distancia_km"])
+    return data
 
-    return Response(data)
+
+@api_view(['GET'])
+def restaurantes_proximos(request):
+    lat_raw = request.GET.get('lat')
+    lon_raw = request.GET.get('lon')
+
+    try:
+        lat = float(lat_raw)
+        lon = float(lon_raw)
+    except (TypeError, ValueError):
+        return Response({"detail": "Parametros lat e lon sao obrigatorios e numericos."}, status=400)
+
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        return Response({"detail": "Latitude ou longitude fora da faixa valida."}, status=400)
+
+    return Response(_listar_restaurantes_por_distancia(lat, lon))
+
+
+@api_view(['GET'])
+def restaurantes_proximos_cliente(request):
+    cliente_id_raw = request.GET.get('cliente_id')
+
+    try:
+        cliente_id = int(cliente_id_raw)
+    except (TypeError, ValueError):
+        return Response({"detail": "Parametro cliente_id e obrigatorio."}, status=400)
+
+    try:
+        cliente = Cliente.objects.get(pk=cliente_id)
+    except Cliente.DoesNotExist:
+        return Response({"detail": "Cliente nao encontrado."}, status=404)
+
+    if cliente.latitude is None or cliente.longitude is None:
+        return Response(
+            {"detail": "Cliente sem coordenadas geograficas. Atualize o endereco cadastrado."},
+            status=400,
+        )
+
+    return Response(_listar_restaurantes_por_distancia(cliente.latitude, cliente.longitude))
 
 import requests
 from django.shortcuts import render

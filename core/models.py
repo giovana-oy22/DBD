@@ -1,4 +1,5 @@
 from django.db import models
+from .services.geocoding import geocode_address
 
 TAMANHO_PADRAO = 100
 
@@ -39,12 +40,33 @@ class Cliente(models.Model):
         verbose_name="Estado",
         help_text="Ex: SP"
     )
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return self.nome
     
     def endereco_completo(self):
         return f"{self.rua}, {self.numero} - {self.cidade}/{self.estado}"
+
+    def save(self, *args, **kwargs):
+        campos_endereco = ("rua", "numero", "cidade", "estado")
+        precisa_geocodificar = self.latitude is None or self.longitude is None
+
+        if self.pk:
+            anterior = Cliente.objects.filter(pk=self.pk).values(*campos_endereco).first()
+            if anterior and any(anterior[campo] != getattr(self, campo) for campo in campos_endereco):
+                precisa_geocodificar = True
+
+        if precisa_geocodificar:
+            coordenadas = geocode_address(self.endereco_completo())
+            if coordenadas:
+                self.latitude, self.longitude = coordenadas
+            else:
+                self.latitude = None
+                self.longitude = None
+
+        super().save(*args, **kwargs)
 
 
 # PRODUTOS

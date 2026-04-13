@@ -33,23 +33,31 @@ function showError(container, text) {
   container.appendChild(p);
 }
 
-async function loadRestaurantes() {
+async function loadRestaurantes(clienteId = null) {
   const box = document.getElementById("restaurantes");
   box.innerHTML = "";
 
   try {
-    const data = await getJson("/api/restaurantes/");
+    const endpoint = clienteId
+      ? "/api/restaurantes-proximos-cliente/?cliente_id=" + encodeURIComponent(clienteId)
+      : "/api/restaurantes/";
+    const data = await getJson(endpoint);
+
     if (!data.length) {
       showEmpty(box, "Nenhum restaurante cadastrado.");
       return;
     }
 
     data.forEach((r) => {
+      const meta = clienteId
+        ? "Distancia: " + Number(r.distancia_km).toFixed(2) + " km"
+        : "Lat " + r.latitude + " | Lon " + r.longitude;
+
       createCard(
         box,
         r.nome,
         r.endereco,
-        "Lat " + r.latitude + " | Lon " + r.longitude,
+        meta,
       );
     });
   } catch (error) {
@@ -106,7 +114,17 @@ async function loadPedidos() {
 }
 
 async function initpainel() {
-  await Promise.all([loadRestaurantes(), loadProdutos(), loadPedidos()]);
+  const clienteSelect = document.getElementById("cliente_id");
+  const clienteSelecionado = clienteSelect && clienteSelect.value ? clienteSelect.value : null;
+
+  if (clienteSelect) {
+    clienteSelect.addEventListener("change", (event) => {
+      const novoClienteId = event.target.value || null;
+      loadRestaurantes(novoClienteId);
+    });
+  }
+
+  await Promise.all([loadRestaurantes(clienteSelecionado), loadProdutos(), loadPedidos()]);
 }
 
 initpainel();

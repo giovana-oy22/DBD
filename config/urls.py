@@ -24,6 +24,7 @@ from core.views import (
     lista_restaurantes,
     lista_pedidos,
     restaurantes_proximos,
+    restaurantes_proximos_cliente,
 )
 
 urlpatterns = [
@@ -34,5 +35,6 @@ urlpatterns = [
     path('api/restaurantes/', lista_restaurantes),
     path('api/pedidos/', lista_pedidos),
     path('api/restaurantes-proximos/', restaurantes_proximos),
+    path('api/restaurantes-proximos-cliente/', restaurantes_proximos_cliente),
     path('produtos/', include('core.urls')),
 ]
