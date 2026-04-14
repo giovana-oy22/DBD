@@ -16,75 +16,84 @@
   </header>
 
   <main class="page">
-    {% if messages %}
-      <section class="messages" aria-live="polite">
-        {% for message in messages %}
-          <article class="message {{ message.tags }}">{{ message }}</article>
-        {% endfor %}
-      </section>
-    {% endif %}
 
+    <!-- FORM -->
     <section class="panel form-panel">
       <div class="panel-head">
         <h2>Criar Pedido Rapido</h2>
       </div>
 
-      <form method="post" action="{% url 'criar_pedido' %}" class="pedido-form">
+      <form method="post" action="{% url 'criar_pedido' %}">
         {% csrf_token %}
 
-        <label for="cliente_id">Cliente</label>
+        <label>Cliente</label>
         <select id="cliente_id" name="cliente_id" required>
-          <option value="" selected disabled>Selecione um cliente</option>
+          <option disabled selected>Selecione</option>
           {% for cliente in clientes %}
             <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
           {% endfor %}
         </select>
 
-        <label for="produto_id">Produto</label>
-        <select id="produto_id" name="produto_id" required>
-          <option value="" selected disabled>Selecione um produto</option>
+        <label>Produto</label>
+        <select name="produto_id" required>
           {% for produto in produtos %}
-            <option value="{{ produto.id }}">{{ produto.nome }} | {{ produto.restaurante.nome }} | R$ {{ produto.preco }}</option>
+            <option value="{{ produto.id }}">
+              {{ produto.nome }} | {{ produto.restaurante.nome }}
+            </option>
           {% endfor %}
         </select>
 
-        <label for="quantidade">Quantidade</label>
-        <input id="quantidade" name="quantidade" type="number" min="1" step="1" value="1" required>
+        <label>Quantidade</label>
+        <input type="number" name="quantidade" value="1" min="1">
 
-        <button type="submit">Criar Pedido</button>
+        <button type="submit">Criar</button>
       </form>
     </section>
 
     <section class="grid">
+
+      <!-- RESTAURANTES -->
       <section class="panel">
-        <div class="panel-head">
-          <h2>Restaurantes</h2>
-        </div>
+        <h2>Restaurantes</h2>
+
+        <input 
+          type="text" 
+          id="busca-restaurante" 
+          placeholder="Buscar restaurante..."
+        >
+
         <div id="restaurantes" class="cards"></div>
       </section>
 
+      <!-- PRODUTOS -->
       <section class="panel">
-        <div class="panel-head">
-          <h2>Produtos</h2>
-        </div>
+        <h2>Produtos</h2>
+
+        <input 
+          type="text" 
+          id="busca-produto" 
+          placeholder="Buscar produto..."
+        >
+
         <div id="produtos" class="cards"></div>
       </section>
 
-      <section class="panel wide">
-        <div class="panel-head">
-          <h2>Pedidos</h2>
-        </div>
+      <!-- PEDIDOS -->
+      <section class="panel">
+        <h2>Pedidos</h2>
         <div id="pedidos" class="cards"></div>
       </section>
+
     </section>
+
   </main>
 
   <template id="card-template">
-    <article class="card">
+    <div class="card">
       <h3 class="card-title"></h3>
       <p class="card-subtitle"></p>
       <p class="card-meta"></p>
-    </article>
+    </div>
   </template>
 
   <script src="{% static 'js/dashboard.js' %}"></script>

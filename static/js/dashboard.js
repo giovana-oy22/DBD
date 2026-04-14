@@ -1,8 +1,8 @@
+let todosProdutos = [];
+let todosRestaurantes = [];
+
 async function getJson(url) {
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!response.ok) {
-    throw new Error("Falha ao carregar " + url);
-  }
+  const response = await fetch(url);
   return response.json();
 }
 
@@ -10,121 +10,120 @@ function createCard(container, title, subtitle, meta) {
   const template = document.getElementById("card-template");
   const node = template.content.cloneNode(true);
 
-  node.querySelector(".card-title").textContent = title || "Sem titulo";
-  node.querySelector(".card-subtitle").textContent = subtitle || "";
-  node.querySelector(".card-meta").textContent = meta || "";
+  node.querySelector(".card-title").textContent = title;
+  node.querySelector(".card-subtitle").textContent = subtitle;
+  node.querySelector(".card-meta").textContent = meta;
 
   container.appendChild(node);
 }
 
-function showEmpty(container, text) {
-  container.innerHTML = "";
-  const p = document.createElement("p");
-  p.className = "empty";
-  p.textContent = text;
-  container.appendChild(p);
-}
-
-function showError(container, text) {
-  container.innerHTML = "";
-  const p = document.createElement("p");
-  p.className = "error";
-  p.textContent = text;
-  container.appendChild(p);
-}
-
-async function loadRestaurantes(clienteId = null) {
-  const box = document.getElementById("restaurantes");
-  box.innerHTML = "";
-
-  try {
-    const endpoint = clienteId
-      ? "/api/restaurantes-proximos-cliente/?cliente_id=" + encodeURIComponent(clienteId)
-      : "/api/restaurantes/";
-    const data = await getJson(endpoint);
-
-    if (!data.length) {
-      showEmpty(box, "Nenhum restaurante cadastrado.");
-      return;
-    }
-
-    data.forEach((r) => {
-      const meta = clienteId
-        ? "Distancia: " + Number(r.distancia_km).toFixed(2) + " km"
-        : "Lat " + r.latitude + " | Lon " + r.longitude;
-
-      createCard(
-        box,
-        r.nome,
-        r.endereco,
-        meta,
-      );
-    });
-  } catch (error) {
-    showError(box, "Erro ao carregar restaurantes.");
-  }
-}
-
-async function loadProdutos() {
+function renderProdutos(lista) {
   const box = document.getElementById("produtos");
   box.innerHTML = "";
 
-  try {
-    const data = await getJson("/api/produtos/");
-    if (!data.length) {
-      showEmpty(box, "Nenhum produto cadastrado.");
-      return;
-    }
-
-    data.forEach((p) => {
-      createCard(
-        box,
-        p.nome,
-        "Restaurante: " + p.restaurante,
-        "Preco: R$ " + Number(p.preco).toFixed(2),
-      );
-    });
-  } catch (error) {
-    showError(box, "Erro ao carregar produtos.");
+  if (!lista.length) {
+    box.innerHTML = "<p>Nenhum produto encontrado</p>";
+    return;
   }
+
+  lista.forEach(p => {
+    createCard(
+      box,
+      p.nome,
+      "Restaurante: " + p.restaurante,
+      "R$ " + Number(p.preco).toFixed(2)
+    );
+  });
+}
+
+function renderRestaurantes(lista) {
+  const box = document.getElementById("restaurantes");
+  box.innerHTML = "";
+
+  if (!lista.length) {
+    box.innerHTML = "<p>Nenhum restaurante encontrado</p>";
+    return;
+  }
+
+  lista.forEach(r => {
+    createCard(
+      box,
+      r.nome,
+      r.endereco,
+      "Lat: " + r.latitude + " | Lon: " + r.longitude
+    );
+  });
+}
+
+async function loadProdutos() {
+  const data = await getJson("/api/produtos/");
+  todosProdutos = data;
+  renderProdutos(data);
+}
+
+async function loadRestaurantes() {
+  const data = await getJson("/api/restaurantes/");
+  todosRestaurantes = data;
+  renderRestaurantes(data);
 }
 
 async function loadPedidos() {
+  const data = await getJson("/api/pedidos/");
   const box = document.getElementById("pedidos");
   box.innerHTML = "";
 
-  try {
-    const data = await getJson("/api/pedidos/");
-    if (!data.length) {
-      showEmpty(box, "Nenhum pedido cadastrado.");
-      return;
-    }
-
-    data.forEach((p) => {
-      createCard(
-        box,
-        "Pedido #" + p.id,
-        "Cliente: " + p.cliente + " | Restaurante: " + p.restaurante,
-        "Total: R$ " + Number(p.total).toFixed(2),
-      );
-    });
-  } catch (error) {
-    showError(box, "Erro ao carregar pedidos.");
-  }
+  data.forEach(p => {
+    createCard(
+      box,
+      "Pedido #" + p.id,
+      p.cliente + " | " + p.restaurante,
+      "Total: R$ " + Number(p.total).toFixed(2)
+    );
+  });
 }
 
-async function initpainel() {
-  const clienteSelect = document.getElementById("cliente_id");
-  const clienteSelecionado = clienteSelect && clienteSelect.value ? clienteSelect.value : null;
+function configurarBuscaProduto() {
+  const input = document.getElementById("busca-produto");
 
-  if (clienteSelect) {
-    clienteSelect.addEventListener("change", (event) => {
-      const novoClienteId = event.target.value || null;
-      loadRestaurantes(novoClienteId);
-    });
-  }
+  input.addEventListener("input", () => {
+    const termo = input.value.toLowerCase();
 
-  await Promise.all([loadRestaurantes(clienteSelecionado), loadProdutos(), loadPedidos()]);
+    const filtrados = todosProdutos.filter(p =>
+      p.nome.toLowerCase().includes(termo)
+    );
+
+    renderProdutos(filtrados);
+  });
 }
 
-initpainel();
+function configurarBuscaRestaurante() {
+  const input = document.getElementById("busca-restaurante");
+
+  input.addEventListener("input", () => {
+    const termo = input.value.toLowerCase();
+
+    const restaurantesFiltrados = todosRestaurantes.filter(r =>
+      r.nome.toLowerCase().includes(termo)
+    );
+
+    const produtosFiltrados = todosProdutos.filter(p =>
+      p.restaurante.toLowerCase().includes(termo)
+    );
+
+    renderRestaurantes(restaurantesFiltrados);
+    renderProdutos(produtosFiltrados);
+  });
+}
+
+async function init() {
+  await Promise.all([
+    loadProdutos(),
+    loadRestaurantes(),
+    loadPedidos()
+  ]);
+
+  configurarBuscaProduto();
+  configurarBuscaRestaurante();
+}
+
+init();
